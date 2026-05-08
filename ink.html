@@ -98,7 +98,7 @@
             displayed = splittedStrings[1]; // Contains 'part two'
         } else {
             secret = currentWord;
-            window.location.href = "uniwebview://speak?text="+currentWord;
+            window.location.href = `uniwebview://speak?text=${currentWord}`;
         }
         
         if(totalRounds>0){currentRound+=1;}
