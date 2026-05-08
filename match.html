@@ -19,7 +19,7 @@
 <body oncontextmenu="return false">
   
   <div id="speakerContainer">
-    <img id="speakerImage" src="https://cdn.glitch.global/6108b0b1-5d03-4a29-a91c-93cd23a0a8f1/speakerON.png?v=1695097256357" alt="Speaker On">
+    <img id="speakerImage" src="Assets/soundon.png" alt="Speaker On">
   </div>
   
 <!--   unity message -->
@@ -40,10 +40,10 @@
       var speakerImage = document.getElementById('speakerImage');
 
       if (speaker) {
-        speakerImage.src = 'https://cdn.glitch.global/6108b0b1-5d03-4a29-a91c-93cd23a0a8f1/speakerOFF.png?v=1695098193890';
+        speakerImage.src = 'Assets/soundoff.png';
         speaker = false;
       } else {
-        speakerImage.src = 'https://cdn.glitch.global/6108b0b1-5d03-4a29-a91c-93cd23a0a8f1/speakerON.png?v=1695097256357';
+        speakerImage.src = 'Assets/soundon.png';
         speaker = true;
       }
     }
