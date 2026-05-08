@@ -98,6 +98,7 @@
             displayed = splittedStrings[1]; // Contains 'part two'
         } else {
             secret = currentWord;
+            window.location.href = "uniwebview://speak?text"+secret;
         }
         
         if(totalRounds>0){currentRound+=1;}
@@ -113,6 +114,7 @@
 
         window.location.href = "uniwebview://secret?text=" + currentWord;
         //upon receiving secret ... make say secret in ink
+        
       }
       
       //called by ink unity if written word similar to secret
