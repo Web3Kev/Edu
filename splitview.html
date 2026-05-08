@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!--   <meta name="viewport" content="width=device-width, user-scalable=no"> -->
+
+    <style>
+      body,
+      html {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        overflow: hidden;
+        background-color: #016868;
+      }
+
+      img {
+        width: 30px; /* Make sure the image doesn't exceed the viewport width */
+        height: 30px; /* Make sure the image doesn't exceed the viewport height */
+        
+      }
+
+      #iframes-container {
+        display: flex;
+        height: 100vh;
+        flex-direction: column;
+      }
+
+      #lobby-container {
+        display: none;
+      }
+
+      #loadingMessage {
+        position: absolute;
+        
+        top: 50%;
+        left: 50%;
+        
+        transform: translate(-50%, -50%);
+        
+        padding:3vh;
+        
+        font-size: 3vh;
+        font-weight: bold;
+        color: #016868;
+        
+        
+        background: white; /* Green color */
+        border-radius: 10px; /* Rounded corners */
+      }
+
+      iframe {
+        border: none;
+        display: block;
+      }
+
+      #iframe1 {
+        flex: 3;
+        max-height: 30vh;
+        max-width: 100%;
+      }
+
+      #iframe2 {
+        flex: 7;
+        max-height: 70vh;
+        max-width: 100%;
+      }
+
+      @media (orientation: landscape) {
+        #iframes-container {
+          flex-direction: row;
+          height: 100vw;
+        }
+
+        #iframe1 {
+          max-width: 40vw;
+          max-height: 100%;
+        }
+
+        #iframe2 {
+          max-width: 60vw;
+          max-height: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!--   <div id="iframes-container"> 
+    <iframe id="iframe1" src="https://kidsfab.whereby.com/test96d2273b-0d48-4504-8169-53517121f422?leaveButton=off&people=off&logo=off&audio=off&minimal&skipMediaPermissionPrompt" allow="camera; microphone; fullscreen; speaker; display-capture; compute-pressure"></iframe>
+    <iframe id="iframe2" src="https://draw.joinplayroom.com/#r=RYXBF"></iframe>
+  </div> -->
+
+    <div id="iframes-container"></div>
+    <div id="lobby-container">
+
+      <div id="loadingMessage"><center>Please wait</center>
+        <center style="margin-right:10px"><img src="https://cdn.glitch.global/6108b0b1-5d03-4a29-a91c-93cd23a0a8f1/loading-load.gif?v=1695117736556"></center></div>
+      
+    </div>
+    <!--   unity message starts weblesson if currentlesson not null-->
+    <script>
+      function identify() {
+        window.location.href = "uniwebview://weblesson?status=split";
+      }
+
+      function setTop(url) {
+        var container = document.getElementById("iframes-container");
+        var iframe = document.getElementById("iframe1");
+
+//             // Check if iframe1 already exists
+//             if (iframe) {
+//                 // If it exists, update the src attribute
+//                 iframe.src = url;
+//             } else {
+//                 // If it does not exist, create it and append to the container
+//                 iframe = document.createElement('iframe');
+//                 iframe.id = 'iframe1';
+//                 iframe.src = url;
+//                 iframe.allow="camera; microphone; fullscreen; speaker; display-capture; compute-pressure";
+
+//                 container.appendChild(iframe);
+//             }
+        if (iframe) {
+          container.removeChild(iframe);
+        }
+        // var reactPage="https://web3kev.github.io/?roomUrl=";
+        iframe = document.createElement("iframe");
+        iframe.id = "iframe1";
+        iframe.src = url;
+        iframe.allow =
+          "camera; microphone; fullscreen; speaker; display-capture; compute-pressure";
+        container.appendChild(iframe);
+
+        checkIframesSrc();
+      }
+
+      function setBottom(url) {
+        var container = document.getElementById("iframes-container");
+        var iframe = document.getElementById("iframe2");
+
+        if (iframe) {
+          container.removeChild(iframe);
+        }
+
+        iframe = document.createElement("iframe");
+        iframe.id = "iframe2";
+        iframe.src = url;
+        container.appendChild(iframe);
+
+        checkIframesSrc();
+      }
+
+      function checkIframesSrc() {
+        var iframe1 = document.getElementById("iframe1");
+        var iframe2 = document.getElementById("iframe2");
+        var loadingMessage = document.getElementById("lobby-container");
+
+        if (iframe1 || iframe2) {
+          // If either of the iframes exists, hide the loading message
+          loadingMessage.style.display = "none";
+        } else {
+          // Show the loading message if no iframes are present
+          loadingMessage.style.display = "block";
+        }
+      }
+
+      function getURLParameter(name) {
+        return new URLSearchParams(window.location.search).get(name);
+      }
+
+      function checkAndSetFromURLParameter() {
+        var ridValue = getURLParameter("rid");
+        if (ridValue !== null) {
+          setTop(ridValue);//"https://" + 
+        }
+      }
+
+      // Call this function when the page loads
+      document.addEventListener(
+        "DOMContentLoaded",
+        checkAndSetFromURLParameter
+      );
+
+      // Initially check whether to display the loading message
+      checkIframesSrc();
+      //?rid=kidsfab.whereby.com/test96d2273b-0d48-4504-8169-53517121f422?leaveButton=off&people=off&logo=off&audio=off&minimal&skipMediaPermissionPrompt
+      // setTop('https://kidsfab.whereby.com/test96d2273b-0d48-4504-8169-53517121f422?leaveButton=off&people=off&logo=off&audio=off&minimal&skipMediaPermissionPrompt" ');
+      // setBottom("https://draw.joinplayroom.com/#r=RYXBF");
+    </script>
+  </body>
+</html>

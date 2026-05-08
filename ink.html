@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Blank</title>
+    <style>
+      body {
+        background-color: #016868; /* Green color */
+        margin: 10px;
+        height: 100vh; /* Make sure the body takes up the full viewport height */
+        /*             display: flex; */
+        justify-content: center;
+        align-items: top;
+        color: white;
+      }
+      img {
+        width: 30px; /* Make sure the image doesn't exceed the viewport width */
+        height: 30px; /* Make sure the image doesn't exceed the viewport height */
+      }
+    </style>
+  </head>
+  <body>
+    <script>
+      
+      let totalRounds=10;
+      let currentRound=0;
+      
+      let currentWord="";
+      
+      // Create an empty list (array)
+      let words = [];
+      // Create an empty list (array)
+      let scores = [];
+      let tries=0;
+      const maxTries=3; //before skip give up
+      const showWordAt=1;
+      
+      function getRoundsParameter() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const roundsParam = urlParams.get('rounds');
+        return roundsParam;
+      }
+      //called by unity, unity will then call start(), upon receiving the message
+      function identify() {
+        toggleButtonVisibility("newWord", false);
+        // toggleButtonVisibility("gameover", false);
+        
+        var rounds = getRoundsParameter();
+        if(rounds!=null)
+        {
+          totalRounds=rounds;
+          console.log(rounds);
+        }
+        
+        window.location.href = "uniwebview://game?status=true";
+        // window.location.href = "uniwebview://speak?text=unity has control.";
+      }
+
+      //called by unity after pressing start in webink
+      function start() {
+        var div = document.getElementById("myDiv");
+        if (div) {
+          div.innerText = "game STARTED remotely";
+        } else {
+          console.error("Element with ID '" + divId + "' not found.");
+        }
+        
+        newSecret(); //call first secret
+        // toggleButtonVisibility("newWord", true);
+        // toggleButtonVisibility("gameover", false);
+        // window.location.href = "uniwebview://speak?text=Let's read some word ! Press the button to start.";
+      }
+      // Array of 10 words
+      const wordArray = [
+        "apple",
+        "london ## What is the capital of England?",
+        "cherry",
+        "12 ## What is 6 + 6 ?"
+      ];
+
+      // Function to pick a random word
+      function pickRandomWord() {
+        const randomIndex = Math.floor(Math.random() * wordArray.length);
+        return wordArray[randomIndex];
+      }
+
+      function newSecret() {
+        currentWord = pickRandomWord();
+        
+        let displayed = "Write the word: _______";
+        let secret = "";
+        let splittedStrings = currentWord.split(" ## ");
+
+        // Check if the string was split successfully
+        if (splittedStrings.length === 2) {
+            secret = splittedStrings[0]; // Contains 'part one'
+            displayed = splittedStrings[1]; // Contains 'part two'
+        } else {
+            secret = currentWord;
+        }
+        
+        if(totalRounds>0){currentRound+=1;}
+
+        var div = document.getElementById("myDiv");
+        if (div) {
+          div.innerText = displayed; //can be blank in sentence
+        } else {
+          console.error("Element with ID '" + divId + "' not found.");
+        }
+
+        toggleButtonVisibility("newWord", false);
+
+        window.location.href = "uniwebview://secret?text=" + currentWord;
+        //upon receiving secret ... make say secret in ink
+      }
+      
+      //called by ink unity if written word similar to secret
+      function inkPass() {
+        var div = document.getElementById("myDiv");
+        if (div) {
+          div.innerText = "Great! Press the button 'continue'";
+        } else {
+          console.error("Element with ID '" + divId + "' not found.");
+        }
+        
+        
+        
+        if(totalRounds>0 && currentRound>=totalRounds)
+        {
+          //end of game
+          
+          words.push(currentWord);
+          
+          if(tries!=0)
+          {
+            //did not pass
+            scores.push(0);
+            tries=0;//reset tries
+          }
+          else
+          {
+            scores.push(100);
+          }
+          
+          
+          //stop game 
+          toggleButtonVisibility("newWord", false);
+          
+          //and send score and transcript
+          let totalscore = calculateAverage(scores);
+          
+          if (div) {
+            div.innerText = "Finished. Total score:"+totalscore;
+          } else {
+            console.error("Element with ID '" + divId + "' not found.");
+          }
+          
+          let transcript="";
+          for (let i = 0; i < words.length; i++) 
+          {
+            transcript+=words[i]+":"+scores[i];
+            if(i<words.length-1)
+            {
+              transcript+="|";
+            }
+          }
+          
+          if (div) {
+            div.innerText = "All done for now !";
+          } else {
+            console.error("Element with ID '" + divId + "' not found.");
+          }
+          
+          window.location.href = "uniwebview://task-done?score="+totalscore+"&transcript="+transcript;
+          
+        }
+        else
+        {
+          //keep playing 
+          
+          words.push(currentWord);
+          
+          if(tries!=0)
+          {
+            //did not pass
+            scores.push(0);
+            tries=0;//reset tries
+          }
+          else
+          {
+            scores.push(100);
+          }
+          
+          
+          toggleButtonVisibility("newWord", true);
+          window.location.href = "uniwebview://speak?text=Great! That's right!";
+        }
+        
+      }
+
+      
+      function calculateAverage(floatList) {
+          let sum = 0;
+
+          for (let i = 0; i < floatList.length; i++) {
+              sum += floatList[i];
+          }
+
+          return sum / floatList.length;
+      }
+      
+      //called by ink unity if written word different from secret
+      function inkFail() {
+        var div = document.getElementById("myDiv");
+        
+        if (div) {
+          div.innerText = "Try again !";
+        } else {
+          console.error("Element with ID '" + divId + "' not found.");
+        }
+        
+        tries+=1;
+        
+        if(tries>=showWordAt && tries<maxTries)
+        {
+          //show result
+          if (div) {
+          div.innerText = "Write the word: "+currentWord;
+          } else {
+            console.error("Element with ID '" + divId + "' not found.");
+          }
+        }
+        else
+        {
+          if(totalRounds>0 && currentRound>=totalRounds)
+          {
+            //stop game 
+            toggleButtonVisibility("newWord", false);
+
+            words.push(currentWord);
+            scores.push(0);
+            tries=0;//reset tries
+
+            //and send score and transcript
+            let totalscore = calculateAverage(scores);
+
+            if (div) {
+              div.innerText = "Finished. Total score:"+totalscore;
+            } else {
+              console.error("Element with ID '" + divId + "' not found.");
+            }
+
+            let transcript="";
+            for (let i = 0; i < words.length; i++) 
+            {
+              transcript+=words[i]+":"+scores[i];
+              if(i<words.length-1)
+              {
+                transcript+="|";
+              }
+            }
+
+            window.location.href = "uniwebview://task-done?score="+totalscore+"&transcript="+transcript;
+            
+            if (div) {
+              div.innerText = "All done for now !";
+            } else {
+              console.error("Element with ID '" + divId + "' not found.");
+            }
+
+          }
+          else
+          {
+            words.push(currentWord);
+            scores.push(0);
+            tries=0;//reset tries
+            
+            if (div) {
+              div.innerText = "Let's try another word. Press the button 'continue' !";
+            } else {
+              console.error("Element with ID '" + divId + "' not found.");
+            }
+
+            toggleButtonVisibility("newWord", true);
+            // window.location.href = "uniwebview://speak?text=Let's try another word. Press the button continue!";
+          }
+        }
+      }
+      
+      
+      
+
+      //called by unity if not allowed to play (no time)
+      function stop() {
+        var div = document.getElementById("myDiv");
+        if (div) {
+          div.innerText = "game STOPPED remotely";
+        } else {
+          console.error("Element with ID '" + divId + "' not found.");
+        }
+        toggleButtonVisibility("newWord", false);
+        // toggleButtonVisibility("gameover", false);
+        window.location.href =
+          "uniwebview://speak?text=game over, you cannot play.";
+      }
+
+      function started() {
+        toggleButtonVisibility("startgame", false);
+        toggleButtonVisibility("gameover", true);
+      }
+
+      function gameOver() {
+        toggleButtonVisibility("startgame", false);
+        toggleButtonVisibility("gameover", false);
+
+        //this tells unity that the game finished... unity either allows or forbids
+        //by calling the function start or stop
+        window.location.href = "uniwebview://game?status=false";
+      }
+
+      function toggleButtonVisibility(buttonId, show) {
+        var button = document.getElementById(buttonId);
+        if (button) {
+          if (show) {
+            button.style.display = "block"; // or "inline-block" or "inline", depending on your button type
+          } else {
+            button.style.display = "none";
+          }
+        } else {
+          console.error("Element with ID '" + buttonId + "' not found.");
+        }
+      }
+    </script>
+
+    <!-- Your content goes here -->
+    <!--    <img src="https://cdn.glitch.global/6108b0b1-5d03-4a29-a91c-93cd23a0a8f1/loading-load.gif?v=1695117736556"> -->
+    <!--   <a href="Unity.call://action_link">Hello</a> -->
+    <!--   window.location.href = "uniwebview://event?title=hello"; -->
+    <div id="myDiv">Let's write</div>
+    <button id="newWord" onclick="newSecret()" style="display:none">continue</button>
+<!--       <button id="pass" onclick="whisperPass()">mark as pass</button> -->
+  </body>
+</html>

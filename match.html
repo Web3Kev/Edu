@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlashCards</title>
+    <link rel="stylesheet" href="https://unpkg.com/swiper@7/swiper-bundle.min.css">
+    <link rel="stylesheet" href="match.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <audio id="tada" preload="auto" muted src="https://cdn.glitch.global/6108b0b1-5d03-4a29-a91c-93cd23a0a8f1/tada10.wav?v=1695085156846"></audio>
+    <audio id="good" preload="auto" muted src="https://cdn.glitch.global/6108b0b1-5d03-4a29-a91c-93cd23a0a8f1/pop7.wav?v=1695085147861"></audio>
+    <audio id="bad" preload="auto" muted src="https://cdn.glitch.global/6108b0b1-5d03-4a29-a91c-93cd23a0a8f1/pop15.wav?v=1695085137926"></audio>
+    <audio id="slide" preload="auto" muted src="https://cdn.glitch.global/6108b0b1-5d03-4a29-a91c-93cd23a0a8f1/woosh12.wav?v=1695108230565"></audio>
+    <audio id="click" preload="auto" muted src="https://cdn.glitch.global/6108b0b1-5d03-4a29-a91c-93cd23a0a8f1/click14.wav?v=1695085121431"></audio>
+    <audio id="up" preload="auto" muted src="https://cdn.glitch.global/6108b0b1-5d03-4a29-a91c-93cd23a0a8f1/woosh19.wav?v=1695108708520"></audio>
+</head>
+  
+<body oncontextmenu="return false">
+  
+  <div id="speakerContainer">
+    <img id="speakerImage" src="https://cdn.glitch.global/6108b0b1-5d03-4a29-a91c-93cd23a0a8f1/speakerON.png?v=1695097256357" alt="Speaker On">
+  </div>
+  
+<!--   unity message -->
+  <script>
+    
+    function identify(data="") {
+      window.location.href = "uniwebview://game?status=true";
+      initializeGame(data);
+    }
+
+  </script>
+  
+<!--   sound toggle -->
+  <script>
+    var speaker = true;
+
+    function toggleSpeaker() {
+      var speakerImage = document.getElementById('speakerImage');
+
+      if (speaker) {
+        speakerImage.src = 'https://cdn.glitch.global/6108b0b1-5d03-4a29-a91c-93cd23a0a8f1/speakerOFF.png?v=1695098193890';
+        speaker = false;
+      } else {
+        speakerImage.src = 'https://cdn.glitch.global/6108b0b1-5d03-4a29-a91c-93cd23a0a8f1/speakerON.png?v=1695097256357';
+        speaker = true;
+      }
+    }
+
+    document.getElementById('speakerContainer').addEventListener('click', toggleSpeaker);
+  </script>
+  
+<!--   sound system -->
+  <script>
+      const tada = document.getElementById("tada");
+      const good = document.getElementById("good");
+      const bad = document.getElementById("bad");
+      const slide = document.getElementById("slide");
+      const click = document.getElementById("click");
+      const up = document.getElementById("up");
+    
+      function playTada() {
+        if(speaker)
+        {
+          tada.muted = false;
+          tada.play();
+          
+        }
+         
+      }
+      function playGood() {
+        if(speaker)
+        {
+          good.muted = false;
+          good.play();
+          
+        }
+           
+        }
+      function playBad() {
+          if(speaker)
+          {
+               bad.muted = false;
+              bad.play();
+
+          }
+          
+        }
+      function playClick() {
+        if(speaker)
+        {
+          click.muted = false;
+          click.play();
+          
+        }
+           
+        }
+      function playSlide() {
+        if(speaker)
+        {
+          slide.muted = false;
+          slide.play();
+          
+        }
+           
+        }
+      function playUp() {
+        if(speaker)
+        {
+          up.muted = false;
+          up.play();
+          
+        }
+           
+        }
+</script>
+  
+
+  
+<!--     <p><a href="javascript:void(0)" onclick="MSGunity('UNITYSay: This is a beautiful Website.');">[Send Message!]</a></p> -->
+    
+<!--   overlay when finished -->
+  <div id="overlay" class="overlay">
+      <div class="overlay-content">
+          <h2>Congratulations!</h2>
+          <p></p>
+          <button id="redoButton">Redo</button>
+      </div>
+  </div>
+  
+<!--     <div id="instruction" class="instruction">
+        <div class="instruction-content">
+            <h2>Match the Cards</h2>
+          <p>swipe ⬅ or ➡ to choose a card</p>
+          <p>swipe ⬆ to select the card that matches</p>
+            <button id="startButton">Start</button>
+        </div>
+    </div> -->
+  
+<!--  card container -->
+  <div class="swiper">
+      <div class="swiper-wrapper" id="swiperWrapper"></div>
+
+      <!-- If we need navigation buttons -->
+      <div class="swiper-button-prev"></div>
+      <div class="swiper-button-next"></div>
+  </div>
+  
+<!--  hint -->
+  <div id="hintDiv"><p></p></div>
+  
+<!--  confetti -->
+  <script> 
+    function startConfetti(timeduration)
+    {
+        confetti.reset();
+         // do this for 30 seconds
+        var duration = timeduration * 1000;
+        var end = Date.now() + duration;
+
+        (function frame() {
+          // launch a few confetti from the left edge
+          confetti({
+            particleCount: 7,
+            angle: 60,
+            spread: 55,
+            origin: { x: 0 }
+          });
+          // and launch a few from the right edge
+          confetti({
+            particleCount: 7,
+            angle: 120,
+            spread: 55,
+            origin: { x: 1 }
+          });
+
+          // keep going until we are out of time
+          if (Date.now() < end) {
+            requestAnimationFrame(frame);
+          }
+        }());
+    }
+
+    function smallConfetti()
+    {
+        confetti.reset();
+        confetti({
+          particleCount: 100,
+          startVelocity: 30,
+          spread: 360,
+          origin: {
+            x: Math.random(),
+            // since they fall down, start a bit higher than random
+            y: Math.random() - 0.2
+          }
+        });
+    }
+  </script>
+  
+<!--  swipe engine -->
+  <script src="https://unpkg.com/swiper@7/swiper-bundle.min.js"></script>
+  
+<!--  game logic -->
+  <script src="match.js"></script>
+
+</body>
+</html>
